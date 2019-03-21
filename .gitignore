@@ -32,3 +32,5 @@
 *.app
 
 eosforce/side\.relay/build/
+
+eos/side\.relay/build/
