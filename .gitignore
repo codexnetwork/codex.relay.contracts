@@ -36,3 +36,9 @@ eosforce/side\.relay/build/
 eos/side\.relay/build/
 
 forceio/side\.relay/build/
+
+\.idea/
+
+eosforce/siderelay/build/
+
+eosforce/siderelay/cmake-build-debug/
