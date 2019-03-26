@@ -8,10 +8,67 @@ ACTION siderelay::in( capi_name from, name chain, capi_name to, asset quantity, 
 }
 
 // from relay chain to side
-ACTION siderelay::out( capi_name committer, const uint64_t id, capi_name to, name chain, asset quantity, const std::string& memo ){
+ACTION siderelay::out( capi_name committer, const uint64_t num, capi_name to, name chain, name contract, asset quantity, const std::string& memo ){
    print("out ", committer, " ", chain, " ", to, " - ", quantity, "\n");
 
-   const auto itr = workergroups.get(chain.value, "chain channel no find");
+   const auto& workergroup = workergroups.get(chain.value, "chain channel no find");
+   const auto account = workergroup.check_permission(name{committer});
+
+   auto outstates_itr = outstates.find(chain.value);
+   eosio_assert(outstates_itr != outstates.end(), "chain outstates no find");
+   eosio_assert(num > outstates_itr->confirmed_num, "action by num has committed");
+
+   outaction_table outs(_self, chain.value);
+   auto itr = outs.find(num);
+
+   auto is_confirmed = false;
+   const auto act_commit = outaction_data{
+      to, chain, contract, quantity, memo // TODO can change by map
+   };
+
+   if( itr == outs.end() ) {
+      outs.emplace( account, [&]( auto& row ) {
+            row.num = num;
+            is_confirmed = row.commit(committer, workergroup, act_commit);
+      });
+   } else {
+      outs.modify( itr, account, [&]( auto& row ) {
+         is_confirmed = row.commit(committer, workergroup, act_commit);
+      });
+   }
+
+   if( is_confirmed ){
+      do_out(to, chain, quantity, memo);
+   }
+}
+
+void siderelay::do_out( capi_name to, name chain, const asset& quantity, const std::string& memo ){
+   print("do_out ", to, ",", chain, ",", quantity, ",", memo, "\n");
+}
+
+name siderelay::workersgroup::check_permission( const name& worker ) const {
+   const auto idx = get_idx_by_name(worker);
+   eosio_assert((idx >= 0) && (idx < requested_names.size()), 
+      "no found worker to check");
+   require_auth(requested_approvals[idx]);
+
+   return requested_approvals[idx].actor;
+}
+
+bool siderelay::outaction::commit( capi_name committer, 
+                                   const workersgroup& workers, 
+                                   const outaction_data& commit_act ) {
+   for( auto& act : actions ){
+      if( commit_act == act ){
+         act.confirmed.push_back( name{ committer } );
+         return workers.is_confirm_ok(act.confirmed);
+      }
+   }
+
+   auto act = commit_act;
+   act.confirmed.push_back( name{ committer } );
+   actions.push_back( act );
+   return workers.is_confirm_ok(act.confirmed);
 }
 
 // change transfers
@@ -43,6 +100,10 @@ ACTION siderelay::initworker( const name& chain, const name& worker, const uint6
             u.requested_powers.emplace_back(power);
             u.requested_approvals.emplace_back(permission);
             u.power_sum = power;
+      });
+      outstates.emplace( _self, [&]( auto& u ) {
+            u.chain = chain;
+            u.confirmed_num = 0;
       });
    } else {
       workergroups.modify( itr, _self, [&]( auto& row ) {

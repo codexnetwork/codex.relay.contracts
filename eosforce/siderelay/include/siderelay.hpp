@@ -8,7 +8,9 @@ CONTRACT siderelay : public contract {
    public:
    using contract::contract;
    siderelay( name receiver, name code, datastream<const char*> ds )
-      : contract(receiver, code, ds), workergroups(receiver, receiver.value) {}
+      : contract(receiver, code, ds)
+      , workergroups(receiver, receiver.value)
+      , outstates(receiver, receiver.value) {}
 
    // TODO Support diff token contracts
 
@@ -16,7 +18,7 @@ CONTRACT siderelay : public contract {
    ACTION in( capi_name from, name chain, capi_name to, asset quantity, const std::string& memo );
 
    // from relay chain to side
-   ACTION out( capi_name committer, const uint64_t id, capi_name to, name chain, asset quantity, const std::string& memo );
+   ACTION out( capi_name committer, const uint64_t num, capi_name to, name chain, name contract, asset quantity, const std::string& memo );
 
    // change transfers
    ACTION chworker( capi_name committer, const name& chain, const name& old, const name& worker, const uint64_t power, const permission_level& permission );
@@ -45,7 +47,7 @@ CONTRACT siderelay : public contract {
          }
 
       public:
-         uint64_t check_permission( const name& worker );
+         name check_permission( const name& worker ) const;
          void modify_worker( const name& worker, const uint64_t power, const permission_level& permission ){
             const auto idx = get_idx_by_name(worker);
             if( idx < 0 ) {
@@ -89,14 +91,86 @@ CONTRACT siderelay : public contract {
             }
          }
 
+         bool is_confirm_ok( const std::vector<name>& confirmed ) const{
+            uint64_t confirmed_power = 0;
+            for( const auto& c : confirmed ) {
+               const auto idx = get_idx_by_name(c);
+               if( idx >= 0 && idx <= requested_powers.size() ){
+                  confirmed_power += requested_powers[idx];
+               }
+            }
+            return (confirmed_power * 3) >= (power_sum * 2);
+         }
+
       public:
          uint64_t primary_key()const { return group_name.value; }
    };
    typedef eosio::multi_index< "workersgroup"_n, workersgroup > workersgroup_table;
    workersgroup_table workergroups;
 
+   TABLE outstate {
+      public:
+         uint64_t    confirmed_num;
+         name        chain;
+
+      public:
+         uint64_t primary_key()const { return chain.value; }
+   };
+   typedef eosio::multi_index< "outstates"_n, outstate > outstate_table;
+   outstate_table outstates;
+
+   struct outaction_data {
+      uint64_t    num;
+      capi_name   to;
+      name        chain;
+      name        contract;
+      asset       quantity;
+      std::string memo;
+
+      std::vector<name>  confirmed;
+
+      outaction_data( capi_name to, const name& chain, 
+                      const name& contract, const asset& quantity, 
+                      const std::string& memo )
+         : to(to)
+         , chain(chain)
+         , contract(contract)
+         , quantity(quantity)
+         , memo(memo)
+      {}
+
+      friend constexpr bool operator == ( const outaction_data& a, const outaction_data& b ) {
+         return std::tie( a.num, a.to, a.chain, a.contract, a.quantity, a.memo ) 
+             == std::tie( b.num, b.to, b.chain, b.contract, b.quantity, b.memo );
+      }
+
+      EOSLIB_SERIALIZE( outaction_data, 
+         (num)(to)(chain)(contract)(quantity)(memo)(confirmed) )
+   };
+
+   TABLE outaction {
+      public:
+         outaction() : num(0) {}
+
+         uint64_t                    num = 0;
+         std::vector<outaction_data> actions;
+
+         bool commit( capi_name committer, 
+                      const workersgroup& workers, 
+                      const outaction_data& act );
+
+      public:
+         uint64_t primary_key() const { return num; }
+   };
+   typedef eosio::multi_index< "outactions"_n, outaction > outaction_table;
+
+public:
    void ontransfer( capi_name from, capi_name to, asset quantity, std::string memo );
 
+private:
+   void do_out( capi_name to, name chain, const asset& quantity, const std::string& memo );
+
+public:
    using in_action = action_wrapper<"in"_n, &siderelay::in>;
    using out_action = action_wrapper<"out"_n, &siderelay::out>;
    using chworker_action = action_wrapper<"chworker"_n, &siderelay::chworker>;
