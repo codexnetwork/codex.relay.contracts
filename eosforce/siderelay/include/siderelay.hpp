@@ -7,6 +7,8 @@ using namespace eosio;
 CONTRACT siderelay : public contract {
    public:
    using contract::contract;
+   siderelay( name receiver, name code, datastream<const char*> ds )
+      : contract(receiver, code, ds), workergroups(receiver, receiver.value) {}
 
    // TODO Support diff token contracts
 
@@ -21,7 +23,7 @@ CONTRACT siderelay : public contract {
 
    ACTION initworker( const name& chain, const name& worker, const uint64_t power, const permission_level& permission );
 
-   TABLE worksgroup {
+   TABLE workersgroup {
       public:
          name group_name;
          std::vector<name>             requested_names;
@@ -31,12 +33,32 @@ CONTRACT siderelay : public contract {
 
       public:
          uint64_t check_permission( const name& worker );
-         void modify_worker( const name& worker, const uint64_t power, const permission_level& permission );
+         void modify_worker( const name& worker, const uint64_t power, const permission_level& permission ){
+            int idx = -1;
+            for(int i = 0; i < requested_names.size(); i++){
+               if( requested_names[i] == worker){
+                  idx = i;
+               }
+            }
+
+            if( idx < 0 ) {
+               requested_names.emplace_back(worker);
+               requested_powers.emplace_back(power);
+               requested_approvals.emplace_back(permission);
+               power_sum += power;
+            } else {
+               const auto old_power = requested_powers[idx];
+               power_sum += (power - old_power);
+               requested_powers[idx] = power;
+               requested_approvals[idx] = permission;
+            }
+         }
 
       public:
          uint64_t primary_key()const { return group_name.value; }
    };
-   typedef eosio::multi_index< "worksgroup"_n, worksgroup > worksgroup_table;
+   typedef eosio::multi_index< "workersgroup"_n, workersgroup > workersgroup_table;
+   workersgroup_table workergroups;
 
    void ontransfer( capi_name from, capi_name to, asset quantity, std::string memo );
 
