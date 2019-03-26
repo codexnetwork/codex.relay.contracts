@@ -3,16 +3,32 @@
 // from side chain to relay
 ACTION siderelay::in( capi_name from, name chain, capi_name to, asset quantity, const std::string& memo ){
    print("in ", from, " ", to, " ", quantity, "\n");
+
+   const auto itr = workergroups.get(chain.value, "chain channel no find");
 }
 
 // from relay chain to side
-ACTION siderelay::out( capi_name committer, capi_name to, name chain, asset quantity, const std::string& memo ){
+ACTION siderelay::out( capi_name committer, const uint64_t id, capi_name to, name chain, asset quantity, const std::string& memo ){
    print("out ", committer, " ", chain, " ", to, " - ", quantity, "\n");
+
+   const auto itr = workergroups.get(chain.value, "chain channel no find");
 }
 
 // change transfers
-ACTION siderelay::chworker( capi_name committer, const name& chain, const name& worker, const uint64_t power, const permission_level& permission ){
-   print("chworker ", committer, " ", worker, "\n");
+ACTION siderelay::chworker( capi_name committer, const name& chain, const name& old, const name& worker, const uint64_t power, const permission_level& permission ){
+   print("chworker ", committer, " ", worker, " from ", old, "\n");
+
+   // TODO first commit then exec
+
+   // TODO just exec in first version
+   auto itr = workergroups.find(chain.value);
+   eosio_assert(itr != workergroups.end(), "no found chain channel");
+   workergroups.modify( itr, _self, [&]( auto& row ) {
+      if( old != worker ) {
+         row.del_worker(old);
+      }
+      row.modify_worker(worker, power, permission);
+   });
 }
 
 ACTION siderelay::initworker( const name& chain, const name& worker, const uint64_t power, const permission_level& permission ){
@@ -35,6 +51,17 @@ ACTION siderelay::initworker( const name& chain, const name& worker, const uint6
    }
 }
 
+ACTION siderelay::cleanworker( const name& chain ){
+   print("cleanworker ", chain, "\n");
+   require_auth(_self);
+
+   auto itr = workergroups.find(chain.value);
+   if(itr != workergroups.end()) {
+      workergroups.modify( itr, _self, [&]( auto& row ) {
+         row.clear_workers();
+      });
+   }
+}
 
 void siderelay::ontransfer( capi_name from, capi_name to, asset quantity, std::string memo ){
    if (name(from) == _self || name(to) != _self) {
@@ -59,7 +86,7 @@ extern "C" {
 
       if( code == receiver ) {
          switch( action ) {
-            EOSIO_DISPATCH_HELPER( siderelay, (out)(chworker)(initworker) )
+            EOSIO_DISPATCH_HELPER( siderelay, (out)(chworker)(initworker)(cleanworker) )
          }
       }
    }
