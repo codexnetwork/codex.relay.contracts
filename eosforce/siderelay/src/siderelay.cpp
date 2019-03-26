@@ -1,19 +1,25 @@
 #include <siderelay.hpp>
 
 // from side chain to relay
-ACTION siderelay::in( capi_name from, uint64_t id, name chain, capi_name to, asset quantity, const std::string& memo ){
+ACTION siderelay::in( capi_name from, name chain, capi_name to, asset quantity, const std::string& memo ){
    print("in ", from, " ", to, " ", quantity, "\n");
 }
 
 // from relay chain to side
-ACTION siderelay::out( capi_name committer, uint64_t id, capi_name to, name chain, asset quantity, const std::string& memo ){
-   print("out ", committer, " ", id, " ", to, " - ", quantity, "\n");
+ACTION siderelay::out( capi_name committer, capi_name to, name chain, asset quantity, const std::string& memo ){
+   print("out ", committer, " ", chain, " ", to, " - ", quantity, "\n");
 }
 
 // change transfers
-ACTION siderelay::chtransfers( capi_name committer, uint64_t id, const std::vector<capi_name>& transfers ){
-   print("chtransfers ", committer, " ", id, "\n");
+ACTION siderelay::chworker( capi_name committer, const name& chain, const name& worker, const uint64_t power, const permission_level& permission ){
+   print("chworker ", committer, " ", worker, "\n");
 }
+
+ACTION siderelay::initworker( const name& chain, const name& worker, const uint64_t power, const permission_level& permission ){
+   print("initworker ", chain, " ", worker, "\n");
+   require_auth(_self);
+}
+
 
 void siderelay::ontransfer( capi_name from, capi_name to, asset quantity, std::string memo ){
    if (name(from) == _self || name(to) != _self) {
@@ -26,7 +32,7 @@ void siderelay::ontransfer( capi_name from, capi_name to, asset quantity, std::s
    print("on transfer ", name(from), " -> ", name(to), " ", quantity, " by ", memo, "\n");
 
    siderelay::in_action in(_self, {_self, "active"_n});
-   in.send(from, 1, "eosforce"_n, to, quantity, memo);
+   in.send(from, "eosforce"_n, to, quantity, memo);
 }
 
 extern "C" {
@@ -38,7 +44,7 @@ extern "C" {
 
       if( code == receiver ) {
          switch( action ) {
-            EOSIO_DISPATCH_HELPER( siderelay, (out)(chtransfers) )
+            EOSIO_DISPATCH_HELPER( siderelay, (out)(chworker)(initworker) )
          }
       }
    }

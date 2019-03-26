@@ -42,3 +42,7 @@ forceio/side\.relay/build/
 eosforce/siderelay/build/
 
 eosforce/siderelay/cmake-build-debug/
+
+eosforce/siderelay/src/cmake-build-debug/
+
+eosforce/siderelay/.vscode/
