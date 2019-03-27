@@ -17,6 +17,10 @@ ACTION siderelay::chworker( capi_name committer, const name& chain, const name& 
    });
 }
 
+// ontransfer
+// if memo is "" so support user transfer token to self account in relay chain
+// if memo is "xxx", memo is the account to transfer in relay chain
+// if memo is "xxx|tt", xxx is the account to transfer in relay chain tt is memo
 void siderelay::ontransfer( capi_name from, capi_name to, asset quantity, std::string memo ) {
    if( name(from) == _self || name(to) != _self ) {
       return;
@@ -28,7 +32,13 @@ void siderelay::ontransfer( capi_name from, capi_name to, asset quantity, std::s
    print("on transfer ", name(from), " -> ", name(to), " ", quantity, " by ", memo, "\n");
 
    siderelay::in_action in(_self, { _self, "active"_n });
-   in.send(from, "eosforce"_n, to, quantity, memo);
+
+   auto to_account = to;
+   if( !memo.empty() ){
+      to_account = name{memo}.value;
+   }
+
+   in.send(1, to_account, quantity, "to relay chain");
 }
 
 extern "C" {

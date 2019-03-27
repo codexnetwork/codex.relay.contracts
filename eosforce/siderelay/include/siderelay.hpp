@@ -17,7 +17,7 @@ public:
    // TODO Support diff token contracts
 
    // from side chain to relay
-   ACTION in( capi_name from, name chain, capi_name to, asset quantity, const std::string& memo );
+   ACTION in( uint64_t num,  capi_name to, asset quantity, const std::string& memo );
 
    // from relay chain to side
    ACTION out( capi_name committer, const uint64_t num, capi_name to, name chain, name contract, asset quantity, const std::string& memo );

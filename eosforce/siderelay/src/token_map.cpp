@@ -39,10 +39,9 @@ bool siderelay::outaction::commit( capi_name committer,
 }
 
 // from side chain to relay
-ACTION siderelay::in( capi_name from, name chain, capi_name to, asset quantity, const std::string& memo ) {
-   print("in ", from, " ", to, " ", quantity, "\n");
-
-   const auto itr = workergroups.get(chain.value, "chain channel no find");
+ACTION siderelay::in( uint64_t num,  capi_name to, asset quantity, const std::string& memo ) {
+   // print("in ", from, " ", to, " ", quantity, "\n");
+   // TODO By FanYang check num if ok by relay chain
 }
 
 // from relay chain to side
