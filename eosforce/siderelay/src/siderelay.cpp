@@ -23,7 +23,7 @@ ACTION siderelay::out( capi_name committer, const uint64_t num, capi_name to, na
 
    auto is_confirmed = false;
    const auto act_commit = outaction_data{
-      to, chain, contract, quantity, memo // TODO can change by map
+      to, chain, contract, quantity, memo
    };
 
    if( itr == outs.end() ) {
@@ -62,26 +62,37 @@ bool siderelay::outaction::commit( capi_name committer,
                                    const workersgroup& workers, 
                                    const outaction_data& commit_act ) {
    const auto committer_name = name{ committer };
-   for( auto& act : actions ) {
-      if( commit_act == act ) {
+   auto commit_act_itr = actions.end();
+
+   for( auto itr = actions.begin(); itr != actions.end(); ++itr ) {
+      if( commit_act == *itr ) {
          // if has committed
-         for( const auto& co : act.confirmed ) {
+         for( const auto& co : itr->confirmed ) {
             if( co == committer_name ){
                return false;
             }
          }
-
-         // add confirm
-         act.confirmed.push_back( committer_name );
-         return workers.is_confirm_ok(act.confirmed);
+         // find
+         commit_act_itr = itr;
+         break;
       }
    }
 
    // new commit
-   auto act = commit_act;
-   act.confirmed.push_back( committer_name );
-   actions.push_back( act );
-   return workers.is_confirm_ok(act.confirmed);
+   if(commit_act_itr == actions.end()){
+      actions.push_back( commit_act );
+      commit_act_itr = actions.end() - 1; // last line keep actions.size() >= 1
+   }
+
+   commit_act_itr->confirmed.push_back( committer_name );
+   const auto is_ok = workers.is_confirm_ok(commit_act_itr->confirmed);
+   if( is_ok ) {
+      if( actions.size() > 1 ){
+         actions[0] = *commit_act_itr;
+         actions.resize(1);
+      }
+   }
+   return is_ok;
 }
 
 // change transfers
