@@ -91,7 +91,7 @@ CONTRACT siderelay : public contract {
             }
          }
 
-         bool is_confirm_ok( const std::vector<name>& confirmed ) const{
+         inline bool is_confirm_ok( const std::vector<name>& confirmed ) const{
             uint64_t confirmed_power = 0;
             for( const auto& c : confirmed ) {
                const auto idx = get_idx_by_name(c);
@@ -120,7 +120,6 @@ CONTRACT siderelay : public contract {
    outstate_table outstates;
 
    struct outaction_data {
-      uint64_t    num;
       capi_name   to;
       name        chain;
       name        contract;
@@ -128,6 +127,10 @@ CONTRACT siderelay : public contract {
       std::string memo;
 
       std::vector<name>  confirmed;
+
+      outaction_data() = default;
+      ~outaction_data() = default;
+      outaction_data( const outaction_data& ) = default;
 
       outaction_data( capi_name to, const name& chain, 
                       const name& contract, const asset& quantity, 
@@ -140,8 +143,8 @@ CONTRACT siderelay : public contract {
       {}
 
       friend constexpr bool operator == ( const outaction_data& a, const outaction_data& b ) {
-         return std::tie( a.num, a.to, a.chain, a.contract, a.quantity, a.memo ) 
-             == std::tie( b.num, b.to, b.chain, b.contract, b.quantity, b.memo );
+         return std::tie( a.to, a.chain, a.contract, a.quantity, a.memo ) 
+             == std::tie( b.to, b.chain, b.contract, b.quantity, b.memo );
       }
 
       EOSLIB_SERIALIZE( outaction_data, 
@@ -150,7 +153,7 @@ CONTRACT siderelay : public contract {
 
    TABLE outaction {
       public:
-         outaction() : num(0) {}
+         outaction() = default;
 
          uint64_t                    num = 0;
          std::vector<outaction_data> actions;
