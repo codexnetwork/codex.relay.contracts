@@ -148,7 +148,7 @@ CONTRACT siderelay : public contract {
       }
 
       EOSLIB_SERIALIZE( outaction_data, 
-         (num)(to)(chain)(contract)(quantity)(memo)(confirmed) )
+         (to)(chain)(contract)(quantity)(memo)(confirmed) )
    };
 
    TABLE outaction {

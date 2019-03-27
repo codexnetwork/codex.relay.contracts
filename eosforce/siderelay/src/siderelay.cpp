@@ -38,6 +38,9 @@ ACTION siderelay::out( capi_name committer, const uint64_t num, capi_name to, na
    }
 
    if( is_confirmed ){
+      outstates.modify( outstates_itr, account, [&]( auto& row ) {
+         row.confirmed_num = num;
+      });
       do_out(to, chain, quantity, memo);
    }
 }
@@ -58,15 +61,25 @@ name siderelay::workersgroup::check_permission( const name& worker ) const {
 bool siderelay::outaction::commit( capi_name committer, 
                                    const workersgroup& workers, 
                                    const outaction_data& commit_act ) {
-   for( auto& act : actions ){
-      if( commit_act == act ){
-         act.confirmed.push_back( name{ committer } );
+   const auto committer_name = name{ committer };
+   for( auto& act : actions ) {
+      if( commit_act == act ) {
+         // if has committed
+         for( const auto& co : act.confirmed ) {
+            if( co == committer_name ){
+               return false;
+            }
+         }
+
+         // add confirm
+         act.confirmed.push_back( committer_name );
          return workers.is_confirm_ok(act.confirmed);
       }
    }
 
+   // new commit
    auto act = commit_act;
-   act.confirmed.push_back( name{ committer } );
+   act.confirmed.push_back( committer_name );
    actions.push_back( act );
    return workers.is_confirm_ok(act.confirmed);
 }
