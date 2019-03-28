@@ -36,8 +36,8 @@ ACTION siderelay::out( capi_name committer, uint64_t num, capi_name to, name cha
    //print("out ", committer, " ", chain, " ", to, " - ", quantity, "\n");
 
    const auto is_confirmed = 
-      commit_work_then_check<outaction_table, outaction_data>(
-         committer, num, chain, work_typ_out, outaction_data{
+      commit_work_then_check<out_action_table, out_action_data>(
+         committer, num, work_typ_out, out_action_data{
             to, chain, contract, quantity, memo
          });
 

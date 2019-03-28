@@ -6,7 +6,7 @@
 using namespace eosio;
 
 // outaction_data data for out action to commit
-struct outaction_data {
+struct out_action_data {
 public:
    capi_name         to;
    name              chain;
@@ -15,23 +15,29 @@ public:
    std::string       memo;
    std::vector<name> confirmed;
 
-   outaction_data() = default;
-   ~outaction_data() = default;
-   outaction_data( const outaction_data& ) = default;
-   outaction_data( capi_name to, const name& chain,
-                   const name& contract, const asset& quantity,
-                   const std::string& memo )
-      : to(to)
-      , chain(chain)
-      , contract(contract)
-      , quantity(quantity)
-      , memo(memo)
-   {}
-
-   friend constexpr bool operator == ( const outaction_data& a, const outaction_data& b ) {
+   friend constexpr bool operator == ( const out_action_data& a, const out_action_data& b ) {
       return std::tie( a.to, a.chain, a.contract, a.quantity, a.memo )
           == std::tie( b.to, b.chain, b.contract, b.quantity, b.memo );
    }
 
-   EOSLIB_SERIALIZE( outaction_data, (to)(chain)(contract)(quantity)(memo)(confirmed) )
+   EOSLIB_SERIALIZE( out_action_data, (to)(chain)(contract)(quantity)(memo)(confirmed) )
+};
+
+// chworkeraction_data data for chworker action to commit
+struct chworker_action_data {
+public:
+   name              chain;
+   name              old;
+   name              worker;
+   uint64_t          power;
+   permission_level  permission;
+
+   std::vector<name> confirmed;
+
+   friend constexpr bool operator == ( const chworker_action_data& a, const chworker_action_data& b ) {
+      return std::tie( a.chain, a.old, a.worker, a.power, a.permission )
+          == std::tie( b.chain, b.old, b.worker, b.power, b.permission );
+   }
+
+   EOSLIB_SERIALIZE( chworker_action_data, (chain)(old)(worker)(power)(permission) )
 };

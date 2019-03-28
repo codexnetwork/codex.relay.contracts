@@ -25,12 +25,12 @@ public:
    ACTION out( capi_name committer, uint64_t num, capi_name to, name chain, name contract, const asset& quantity, const std::string& memo );
 
    // change transfers
-   ACTION chworker( capi_name committer, capi_name chain, capi_name old, capi_name worker, uint64_t power, const permission_level& permission );
+   ACTION chworker( capi_name committer, uint64_t num, capi_name work_typ, capi_name old, capi_name worker, uint64_t power, const permission_level& permission );
 
    // change worker in bios stage
-   ACTION initworker( capi_name chain, capi_name worker_typ, capi_name worker, uint64_t power, const permission_level& permission );
+   ACTION initworker( capi_name worker_typ, capi_name worker, uint64_t power, const permission_level& permission );
 
-   ACTION cleanworker( capi_name chain );
+   ACTION cleanworker( capi_name work_typ );
 
    TABLE workersgroup {
       public:
@@ -65,13 +65,14 @@ public:
    typedef eosio::multi_index< "workstates"_n, workstate > workstate_table;
 
    WORK_TYPE_TABLE_DEFINE(out)
+   WORK_TYPE_TABLE_DEFINE(chworker)
 
 public:
    void ontransfer( capi_name from, capi_name to, const asset& quantity, const std::string& memo );
    
 private:
    template< typename Action_Table_T, typename Action_T >
-   bool commit_work_then_check( capi_name committer, uint64_t num, const name& chain, const name& work_typ, const Action_T& act_commit );
+   bool commit_work_then_check( capi_name committer, uint64_t num, const name& work_typ, const Action_T& act_commit );
 
 public:
    using in_action = action_wrapper<"in"_n, &siderelay::in>;
@@ -119,16 +120,16 @@ bool commit_action_imp( K& actions,
 }
 
 template< typename Action_Table_T, typename Action_T >
-bool siderelay::commit_work_then_check( capi_name committer, uint64_t num, const name& chain, const name& work_typ, const Action_T& act_commit ) {
-   const auto& workergroup = workergroups.get(chain.value, "chain channel no find");
+bool siderelay::commit_work_then_check( capi_name committer, uint64_t num, const name& work_typ, const Action_T& act_commit ) {
+   const auto& workergroup = workergroups.get(work_typ.value, "work_typ channel no find");
    const auto account = workergroup.check_permission( committer );
 
-   workstate_table worker_states( _self, chain.value );
+   workstate_table worker_states( _self, _self.value );
    auto states_itr = worker_states.find(work_typ.value);
-   eosio_assert(states_itr != worker_states.end(), "chain work states no find");
+   eosio_assert(states_itr != worker_states.end(), "work_typ work states no find");
    eosio_assert(num > states_itr->confirmed_num, "action by num has committed");
 
-   Action_Table_T acts_table(_self, chain.value);
+   Action_Table_T acts_table(_self, work_typ.value);
    auto itr = acts_table.find(num);
 
    auto is_confirmed = false;
