@@ -3,6 +3,7 @@
 #pragma once
 
 #define WORK_TYPE_TABLE_DEFINE(name) \
+   constexpr static auto work_typ_##name = BOOST_PP_CAT(BOOST_PP_STRINGIZE(name),_n);\
    TABLE name##action { \
          uint64_t num = 0; \
          std::vector<name##action_data> actions; \

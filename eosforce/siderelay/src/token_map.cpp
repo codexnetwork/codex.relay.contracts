@@ -1,8 +1,6 @@
 #include <siderelay.hpp>
 #include <chain.hpp>
 
-WORK_TYPE_IMPS(out)
-
 // ontransfer
 // if memo is "" so support user transfer token to self account in relay chain
 // if memo is "xxx", memo is the account to transfer in relay chain
@@ -27,7 +25,6 @@ void siderelay::ontransfer( capi_name from, capi_name to, const asset& quantity,
    in.send(1, to_account, quantity, "to relay chain");
 }
 
-
 // from side chain to relay
 ACTION siderelay::in( uint64_t num,  capi_name to, const asset& quantity, const std::string& memo ) {
    // print("in ", from, " ", to, " ", quantity, "\n");
@@ -40,7 +37,7 @@ ACTION siderelay::out( capi_name committer, uint64_t num, capi_name to, name cha
 
    const auto is_confirmed = 
       commit_work_then_check<outaction_table, outaction_data>(
-         committer, num, chain, token_map_typ, outaction_data{
+         committer, num, chain, work_typ_out, outaction_data{
             to, chain, contract, quantity, memo
          });
 
