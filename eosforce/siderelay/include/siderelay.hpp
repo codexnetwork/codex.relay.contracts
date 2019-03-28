@@ -108,9 +108,10 @@ public:
 
 public:
    void ontransfer( capi_name from, capi_name to, const asset& quantity, const std::string& memo );
-
+   
 private:
-   void do_out( const name& to, const name& chain, const asset& quantity, const std::string& memo );
+   template< typename Action_Table_T, typename Action_T >
+   bool commit_work_then_check( capi_name committer, uint64_t num, const name& chain, const name& work_typ, const Action_T& act_commit );
 
 public:
    using in_action = action_wrapper<"in"_n, &siderelay::in>;
