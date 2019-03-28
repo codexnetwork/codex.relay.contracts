@@ -1,4 +1,5 @@
 #include <siderelay.hpp>
+#include <chain.hpp>
 
 int siderelay::workersgroup::get_idx_by_name( capi_name worker ) const {
    for( int i = 0; i < requested_names.size(); i++ ) {

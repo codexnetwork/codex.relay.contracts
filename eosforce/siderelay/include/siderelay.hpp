@@ -157,3 +157,38 @@ bool commit_action_imp( K& actions,
    }
    return is_ok;
 }
+
+template< typename Action_Table_T, typename Action_T >
+bool siderelay::commit_work_then_check( capi_name committer, uint64_t num, const name& chain, const name& work_typ, const Action_T& act_commit ) {
+   const auto& workergroup = workergroups.get(chain.value, "chain channel no find");
+   const auto account = workergroup.check_permission( committer );
+
+   workstate_table worker_states( _self, chain.value );
+   auto states_itr = worker_states.find(work_typ.value);
+   eosio_assert(states_itr != worker_states.end(), "chain work states no find");
+   eosio_assert(num > states_itr->confirmed_num, "action by num has committed");
+
+   Action_Table_T acts_table(_self, chain.value);
+   auto itr = acts_table.find(num);
+
+   auto is_confirmed = false;
+
+   if( itr == acts_table.end() ) {
+      acts_table.emplace(account, [&]( auto& row ) {
+         row.num = num;
+         is_confirmed = row.commit(committer, workergroup, act_commit);
+      });
+   } else {
+      acts_table.modify(itr, account, [&]( auto& row ) {
+         is_confirmed = row.commit(committer, workergroup, act_commit);
+      });
+   }
+
+   if( is_confirmed ) {
+      worker_states.modify(states_itr, account, [&]( auto& row ) {
+         row.confirmed_num = num;
+      });
+   }
+
+   return is_confirmed;
+}
