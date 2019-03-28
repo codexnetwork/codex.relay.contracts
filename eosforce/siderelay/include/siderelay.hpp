@@ -11,10 +11,11 @@ public:
    using contract::contract;
    siderelay( name receiver, name code, datastream<const char*> ds )
       : contract(receiver, code, ds)
-      , workergroups(receiver, receiver.value)
-      , outstates(receiver, receiver.value) {}
+      , workergroups(receiver, receiver.value) {}
 
    // TODO Support diff token contracts
+
+   constexpr static auto token_map_typ = "map.token"_n;
 
    // from side chain to relay
    ACTION in( uint64_t num,  capi_name to, const asset& quantity, const std::string& memo );
@@ -26,7 +27,7 @@ public:
    ACTION chworker( capi_name committer, capi_name chain, capi_name old, capi_name worker, uint64_t power, const permission_level& permission );
 
    // change worker in bios stage
-   ACTION initworker( capi_name chain, capi_name worker, uint64_t power, const permission_level& permission );
+   ACTION initworker( capi_name chain, capi_name worker_typ, capi_name worker, uint64_t power, const permission_level& permission );
 
    ACTION cleanworker( capi_name chain );
 
@@ -54,16 +55,15 @@ public:
    typedef eosio::multi_index< "workersgroup"_n, workersgroup > workersgroup_table;
    workersgroup_table workergroups;
 
-   TABLE outstate {
+   TABLE workstate {
       public:
          uint64_t    confirmed_num;
-         name        chain;
+         name        type;
 
       public:
-         uint64_t primary_key()const { return chain.value; }
+         uint64_t primary_key()const { return type.value; }
    };
-   typedef eosio::multi_index< "outstates"_n, outstate > outstate_table;
-   outstate_table outstates;
+   typedef eosio::multi_index< "workstates"_n, workstate > workstate_table;
 
    struct outaction_data {
       capi_name   to;

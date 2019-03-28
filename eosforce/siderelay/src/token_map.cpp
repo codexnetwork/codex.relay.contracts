@@ -51,9 +51,10 @@ ACTION siderelay::out( capi_name committer, uint64_t num, capi_name to, name cha
    const auto& workergroup = workergroups.get(chain.value, "chain channel no find");
    const auto account = workergroup.check_permission( committer );
 
-   auto outstates_itr = outstates.find(chain.value);
-   eosio_assert(outstates_itr != outstates.end(), "chain outstates no find");
-   eosio_assert(num > outstates_itr->confirmed_num, "action by num has committed");
+   workstate_table worker_states( _self, chain.value );
+   auto states_itr = worker_states.find(token_map_typ.value);
+   eosio_assert(states_itr != worker_states.end(), "chain work states no find");
+   eosio_assert(num > states_itr->confirmed_num, "action by num has committed");
 
    outaction_table outs(_self, chain.value);
    auto itr = outs.find(num);
@@ -75,7 +76,7 @@ ACTION siderelay::out( capi_name committer, uint64_t num, capi_name to, name cha
    }
 
    if( is_confirmed ) {
-      outstates.modify(outstates_itr, account, [&]( auto& row ) {
+      worker_states.modify(states_itr, account, [&]( auto& row ) {
          row.confirmed_num = num;
       });
       do_out(name{to}, chain, quantity, memo);
