@@ -1,11 +1,7 @@
 #include <siderelay.hpp>
 #include <chain.hpp>
 
-bool siderelay::outaction::commit( capi_name committer,
-                                   const workersgroup& workers,
-                                   const outaction_data& commit_act ) {
-   return ::commit_action_imp(actions, committer, workers, commit_act);
-}
+WORK_TYPE_IMPS(out)
 
 // ontransfer
 // if memo is "" so support user transfer token to self account in relay chain

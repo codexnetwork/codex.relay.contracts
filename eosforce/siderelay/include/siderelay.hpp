@@ -1,6 +1,8 @@
 #include <eosiolib/eosio.hpp>
 #include <eosiolib/asset.hpp>
 
+#include <work.hpp>
+
 #pragma once
 
 using namespace eosio;
@@ -94,17 +96,7 @@ public:
    };
    typedef eosio::multi_index< "workstates"_n, workstate > workstate_table;
 
-   TABLE outaction {
-         using action_data_typ = outaction_data;
-         using action_data_vec = std::vector<action_data_typ>;
-
-         uint64_t        num = 0;
-         action_data_vec actions;
-
-         bool commit( capi_name committer, const workersgroup& workers, const action_data_typ& act );
-         uint64_t primary_key() const { return num; }
-   };
-   typedef eosio::multi_index< "outactions"_n, outaction > outaction_table;
+   WORK_TYPE_TABLE_DEFINE(out)
 
 public:
    void ontransfer( capi_name from, capi_name to, const asset& quantity, const std::string& memo );
