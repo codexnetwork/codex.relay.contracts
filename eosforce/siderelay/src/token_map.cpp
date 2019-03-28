@@ -4,38 +4,7 @@
 bool siderelay::outaction::commit( capi_name committer,
                                    const workersgroup& workers,
                                    const outaction_data& commit_act ) {
-   const auto committer_name = name{ committer };
-   auto commit_act_itr = actions.end();
-
-   for( auto itr = actions.begin(); itr != actions.end(); ++itr ) {
-      if( commit_act == *itr ) {
-         // if has committed
-         for( const auto& co : itr->confirmed ) {
-            if( co == committer_name ) {
-               return false;
-            }
-         }
-         // find
-         commit_act_itr = itr;
-         break;
-      }
-   }
-
-   // new commit
-   if( commit_act_itr == actions.end() ) {
-      actions.push_back(commit_act);
-      commit_act_itr = actions.end() - 1; // last line keep actions.size() >= 1
-   }
-
-   commit_act_itr->confirmed.push_back(committer_name);
-   const auto is_ok = workers.is_confirm_ok(commit_act_itr->confirmed);
-   if( is_ok ) {
-      if( actions.size() > 1 ) {
-         actions[0] = *commit_act_itr;
-         actions.resize(1);
-      }
-   }
-   return is_ok;
+   return ::commit_action_imp(actions, committer, workers, commit_act);
 }
 
 // from side chain to relay

@@ -5,6 +5,37 @@
 
 using namespace eosio;
 
+// outaction_data data for out action to commit
+struct outaction_data {
+public:
+   capi_name         to;
+   name              chain;
+   name              contract;
+   asset             quantity;
+   std::string       memo;
+   std::vector<name> confirmed;
+
+   outaction_data() = default;
+   ~outaction_data() = default;
+   outaction_data( const outaction_data& ) = default;
+   outaction_data( capi_name to, const name& chain,
+                   const name& contract, const asset& quantity,
+                   const std::string& memo )
+      : to(to)
+      , chain(chain)
+      , contract(contract)
+      , quantity(quantity)
+      , memo(memo)
+   {}
+
+   friend constexpr bool operator == ( const outaction_data& a, const outaction_data& b ) {
+      return std::tie( a.to, a.chain, a.contract, a.quantity, a.memo )
+          == std::tie( b.to, b.chain, b.contract, b.quantity, b.memo );
+   }
+
+   EOSLIB_SERIALIZE( outaction_data, (to)(chain)(contract)(quantity)(memo)(confirmed) )
+};
+
 // now just for token map
 CONTRACT siderelay : public contract {
 public:
@@ -56,59 +87,21 @@ public:
    workersgroup_table workergroups;
 
    TABLE workstate {
-      public:
          uint64_t    confirmed_num;
          name        type;
 
-      public:
          uint64_t primary_key()const { return type.value; }
    };
    typedef eosio::multi_index< "workstates"_n, workstate > workstate_table;
 
-   struct outaction_data {
-      capi_name   to;
-      name        chain;
-      name        contract;
-      asset       quantity;
-      std::string memo;
-
-      std::vector<name>  confirmed;
-
-      outaction_data() = default;
-      ~outaction_data() = default;
-      outaction_data( const outaction_data& ) = default;
-
-      outaction_data( capi_name to, const name& chain,
-                      const name& contract, const asset& quantity,
-                      const std::string& memo )
-         : to(to)
-         , chain(chain)
-         , contract(contract)
-         , quantity(quantity)
-         , memo(memo)
-      {}
-
-      friend constexpr bool operator == ( const outaction_data& a, const outaction_data& b ) {
-         return std::tie( a.to, a.chain, a.contract, a.quantity, a.memo )
-             == std::tie( b.to, b.chain, b.contract, b.quantity, b.memo );
-      }
-
-      EOSLIB_SERIALIZE( outaction_data,
-         (to)(chain)(contract)(quantity)(memo)(confirmed) )
-   };
-
    TABLE outaction {
-      public:
-         outaction() = default;
+         using action_data_typ = outaction_data;
+         using action_data_vec = std::vector<action_data_typ>;
 
-         uint64_t                    num = 0;
-         std::vector<outaction_data> actions;
+         uint64_t        num = 0;
+         action_data_vec actions;
 
-         bool commit( capi_name committer,
-                      const workersgroup& workers,
-                      const outaction_data& act );
-
-      public:
+         bool commit( capi_name committer, const workersgroup& workers, const action_data_typ& act );
          uint64_t primary_key() const { return num; }
    };
    typedef eosio::multi_index< "outactions"_n, outaction > outaction_table;
@@ -123,3 +116,43 @@ public:
    using in_action = action_wrapper<"in"_n, &siderelay::in>;
    using out_action = action_wrapper<"out"_n, &siderelay::out>;
 };
+
+// commit_action_imp imp to commit actions
+template<typename T, typename K>
+bool commit_action_imp( K& actions,
+                        capi_name committer,
+                        const siderelay::workersgroup& workers,
+                        const T& commit_act ) {
+   const auto committer_name = eosio::name{ committer };
+   auto commit_act_itr = actions.end();
+
+   for( auto itr = actions.begin(); itr != actions.end(); ++itr ) {
+      if( commit_act == *itr ) {
+         // if has committed
+         for( const auto& co : itr->confirmed ) {
+            if( co == committer_name ) {
+               return false;
+            }
+         }
+         // find
+         commit_act_itr = itr;
+         break;
+      }
+   }
+
+   // new commit
+   if( commit_act_itr == actions.end() ) {
+      actions.push_back(commit_act);
+      commit_act_itr = actions.end() - 1; // last line keep actions.size() >= 1
+   }
+
+   commit_act_itr->confirmed.push_back(committer_name);
+   const auto is_ok = workers.is_confirm_ok(commit_act_itr->confirmed);
+   if( is_ok ) {
+      if( actions.size() > 1 ) {
+         actions[0] = *commit_act_itr;
+         actions.resize(1);
+      }
+   }
+   return is_ok;
+}
