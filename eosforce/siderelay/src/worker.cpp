@@ -1,15 +1,15 @@
 #include <siderelay.hpp>
 
-int siderelay::workersgroup::get_idx_by_name( const name& worker ) const {
+int siderelay::workersgroup::get_idx_by_name( capi_name worker ) const {
    for( int i = 0; i < requested_names.size(); i++ ) {
-      if( requested_names[i] == worker ) {
+      if( requested_names[i].value == worker ) {
          return i;
       }
    }
    return -1;
 }
 
-void siderelay::workersgroup::modify_worker( const name& worker, const uint64_t power, const permission_level& permission ) {
+void siderelay::workersgroup::modify_worker( capi_name worker, uint64_t power, const permission_level& permission ) {
    const auto idx = get_idx_by_name(worker);
    if( idx < 0 ) {
       requested_names.emplace_back(worker);
@@ -31,7 +31,7 @@ void siderelay::workersgroup::clear_workers() {
    power_sum = 0;
 }
 
-void siderelay::workersgroup::del_worker( const name& worker ) {
+void siderelay::workersgroup::del_worker( capi_name worker ) {
    const auto idx = get_idx_by_name(worker);
    eosio_assert((idx >= 0) && (idx < requested_names.size()),
                 "no found worker to delete");
@@ -52,10 +52,10 @@ void siderelay::workersgroup::del_worker( const name& worker ) {
    }
 }
 
-bool siderelay::workersgroup::is_confirm_ok( const std::vector <name>& confirmed ) const {
+bool siderelay::workersgroup::is_confirm_ok( const std::vector<name>& confirmed ) const {
    uint64_t confirmed_power = 0;
    for( const auto& c : confirmed ) {
-      const auto idx = get_idx_by_name(c);
+      const auto idx = get_idx_by_name(c.value);
       if( idx >= 0 && idx <= requested_powers.size() ) {
          confirmed_power += requested_powers[idx];
       }
@@ -63,7 +63,7 @@ bool siderelay::workersgroup::is_confirm_ok( const std::vector <name>& confirmed
    return (confirmed_power * 3) >= (power_sum * 2);
 }
 
-name siderelay::workersgroup::check_permission( const name& worker ) const {
+name siderelay::workersgroup::check_permission( capi_name worker ) const {
    const auto idx = get_idx_by_name(worker);
    eosio_assert((idx >= 0) && (idx < requested_names.size()),
                 "no found worker to check");

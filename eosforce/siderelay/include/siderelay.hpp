@@ -17,18 +17,18 @@ public:
    // TODO Support diff token contracts
 
    // from side chain to relay
-   ACTION in( uint64_t num,  capi_name to, asset quantity, const std::string& memo );
+   ACTION in( uint64_t num,  capi_name to, const asset& quantity, const std::string& memo );
 
    // from relay chain to side
-   ACTION out( capi_name committer, const uint64_t num, capi_name to, name chain, name contract, asset quantity, const std::string& memo );
+   ACTION out( capi_name committer, uint64_t num, capi_name to, name chain, name contract, const asset& quantity, const std::string& memo );
 
    // change transfers
-   ACTION chworker( capi_name committer, const name& chain, const name& old, const name& worker, const uint64_t power, const permission_level& permission );
+   ACTION chworker( capi_name committer, capi_name chain, capi_name old, capi_name worker, uint64_t power, const permission_level& permission );
 
    // change worker in bios stage
-   ACTION initworker( const name& chain, const name& worker, const uint64_t power, const permission_level& permission );
+   ACTION initworker( capi_name chain, capi_name worker, uint64_t power, const permission_level& permission );
 
-   ACTION cleanworker( const name& chain );
+   ACTION cleanworker( capi_name chain );
 
    TABLE workersgroup {
       public:
@@ -39,13 +39,13 @@ public:
          uint64_t power_sum = 0;
 
       private:
-         int get_idx_by_name( const name& worker ) const;
+         int get_idx_by_name( capi_name worker ) const;
 
       public:
-         name check_permission( const name& worker ) const;
-         void modify_worker( const name& worker, const uint64_t power, const permission_level& permission );
+         name check_permission( capi_name worker ) const;
+         void modify_worker( capi_name worker, uint64_t power, const permission_level& permission );
          void clear_workers();
-         void del_worker( const name& worker );
+         void del_worker( capi_name worker );
          bool is_confirm_ok( const std::vector<name>& confirmed ) const;
 
       public:
@@ -114,7 +114,7 @@ public:
    typedef eosio::multi_index< "outactions"_n, outaction > outaction_table;
 
 public:
-   void ontransfer( capi_name from, capi_name to, asset quantity, std::string memo );
+   void ontransfer( capi_name from, capi_name to, const asset& quantity, const std::string& memo );
 
 private:
    void do_out( const name& to, const name& chain, const asset& quantity, const std::string& memo );
@@ -122,6 +122,4 @@ private:
 public:
    using in_action = action_wrapper<"in"_n, &siderelay::in>;
    using out_action = action_wrapper<"out"_n, &siderelay::out>;
-   using chworker_action = action_wrapper<"chworker"_n, &siderelay::chworker>;
-   using initworker_action = action_wrapper<"initworker"_n, &siderelay::initworker>;
 };

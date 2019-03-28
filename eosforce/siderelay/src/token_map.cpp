@@ -39,17 +39,17 @@ bool siderelay::outaction::commit( capi_name committer,
 }
 
 // from side chain to relay
-ACTION siderelay::in( uint64_t num,  capi_name to, asset quantity, const std::string& memo ) {
+ACTION siderelay::in( uint64_t num,  capi_name to, const asset& quantity, const std::string& memo ) {
    // print("in ", from, " ", to, " ", quantity, "\n");
    // TODO By FanYang check num if ok by relay chain
 }
 
 // from relay chain to side
-ACTION siderelay::out( capi_name committer, const uint64_t num, capi_name to, name chain, name contract, asset quantity, const std::string& memo ) {
+ACTION siderelay::out( capi_name committer, uint64_t num, capi_name to, name chain, name contract, const asset& quantity, const std::string& memo ) {
    print("out ", committer, " ", chain, " ", to, " - ", quantity, "\n");
 
    const auto& workergroup = workergroups.get(chain.value, "chain channel no find");
-   const auto account = workergroup.check_permission(name{ committer });
+   const auto account = workergroup.check_permission( committer );
 
    auto outstates_itr = outstates.find(chain.value);
    eosio_assert(outstates_itr != outstates.end(), "chain outstates no find");
