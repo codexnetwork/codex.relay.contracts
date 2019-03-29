@@ -8,7 +8,6 @@
 
 using namespace eosio;
 
-// now just for token map
 CONTRACT siderelay : public contract {
 public:
    using contract::contract;
@@ -29,7 +28,6 @@ public:
 
    // change worker in bios stage
    ACTION initworker( capi_name worker_typ, capi_name worker, uint64_t power, const permission_level& permission );
-
    ACTION cleanworker( capi_name work_typ );
 
    TABLE workersgroup {

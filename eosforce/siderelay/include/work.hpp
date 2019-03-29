@@ -17,3 +17,7 @@
 bool siderelay::name##_actions::commit( capi_name committer, const workersgroup& workers, const name##_action_data& commit_act ) { \
    return ::commit_action_imp(actions, committer, workers, commit_act); \
 }
+
+#define WORK_CHECK(name, committer, args...) \
+      (commit_work_then_check< name##_action_table, name##_action_data >( \
+         committer, num, work_typ_##name, name##_action_data { args }))

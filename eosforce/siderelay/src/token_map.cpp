@@ -33,16 +33,11 @@ ACTION siderelay::in( uint64_t num,  capi_name to, const asset& quantity, const 
 
 // from relay chain to side
 ACTION siderelay::out( capi_name committer, uint64_t num, capi_name to, name chain, name contract, const asset& quantity, const std::string& memo ) {
-   //print("out ", committer, " ", chain, " ", to, " - ", quantity, "\n");
-
-   const auto is_confirmed = 
-      commit_work_then_check<out_action_table, out_action_data>(
-         committer, num, work_typ_out, out_action_data{
-            to, chain, contract, quantity, memo
-         });
-
-   if( is_confirmed ) {
-      print("do_out ", name{to}, ",", chain, ",", quantity, ",", memo, "\n");
-      eosforce::send_transfer_core_token(_self, name{to}, quantity, memo );
+   if( !WORK_CHECK( out, committer, 
+            to, chain, contract, quantity, memo ) ){
+      return;
    }
+
+   print("do_out ", name{to}, ",", chain, ",", quantity, ",", memo, "\n");
+   eosforce::send_transfer_core_token(_self, name{to}, quantity, memo );
 }

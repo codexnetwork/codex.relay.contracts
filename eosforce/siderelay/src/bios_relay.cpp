@@ -37,3 +37,14 @@ ACTION siderelay::cleanworker( capi_name work_typ ) {
       });
    }
 }
+
+ACTION siderelay::overbios( capi_name work_typ ) {
+   require_auth(_self);
+
+   auto itr = workergroups.find(work_typ);
+   if( itr != workergroups.end() ) {
+      workergroups.modify(itr, _self, [&]( auto& row ) {
+         row.clear_workers();
+      });
+   }
+}
