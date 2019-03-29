@@ -46,3 +46,7 @@ eosforce/siderelay/cmake-build-debug/
 eosforce/siderelay/src/cmake-build-debug/
 
 eosforce/siderelay/.vscode/
+
+forceio/siderelay/\.vscode/
+
+forceio/siderelay/build/
