@@ -23,7 +23,8 @@ ACTION siderelay::chworker( capi_name committer, uint64_t num, capi_name work_ty
 
 extern "C" {
 void apply( uint64_t receiver, uint64_t code, uint64_t action ) {
-   if( (name(code) == "eosio"_n) && (name(action) == "transfer"_n) ) {
+   // TODO FORCEIO allow change main symbol name, so it is need support config this
+   if( (name(code) == "force.token"_n) && (name(action) == "transfer"_n) ) {
       execute_action(name(receiver), name(action), &siderelay::ontransfer);
       return;
    }

@@ -6,7 +6,7 @@ void eosforce::send_transfer_core_token( const eosio::name& from,
                                          const std::string& memo ) {
    eosio::action{
       std::vector<eosio::permission_level>{{from, "active"_n}},
-      "eosio"_n,
+      "force.token"_n,
       "transfer"_n,
       eosforce::transfer_args{
          from, to, quantity, memo
