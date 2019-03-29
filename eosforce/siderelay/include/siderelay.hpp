@@ -62,8 +62,7 @@ public:
    };
    typedef eosio::multi_index< "workstates"_n, workstate > workstate_table;
 
-   WORK_TYPE_TABLE_DEFINE(out)
-   WORK_TYPE_TABLE_DEFINE(chworker)
+
 
 public:
    void ontransfer( capi_name from, capi_name to, const asset& quantity, const std::string& memo );
@@ -72,6 +71,16 @@ private:
    template< typename Action_Table_T, typename Action_T >
    bool commit_work_then_check( capi_name committer, uint64_t num, const name& work_typ, const Action_T& act_commit );
 
+   template<typename T, typename K>
+   static bool commit_action_imp( K& actions,
+                           capi_name committer,
+                           const workersgroup& workers,
+                           const T& commit_act );
+
+public:
+   WORK_TYPE_TABLE_DEFINE(out)
+   WORK_TYPE_TABLE_DEFINE(chworker)
+
 public:
    using in_action = action_wrapper<"in"_n, &siderelay::in>;
    using out_action = action_wrapper<"out"_n, &siderelay::out>;
@@ -79,7 +88,7 @@ public:
 
 // commit_action_imp imp to commit actions
 template<typename T, typename K>
-bool commit_action_imp( K& actions,
+bool siderelay::commit_action_imp( K& actions,
                         capi_name committer,
                         const siderelay::workersgroup& workers,
                         const T& commit_act ) {

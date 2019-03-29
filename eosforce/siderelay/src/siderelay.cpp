@@ -21,9 +21,6 @@ ACTION siderelay::chworker( capi_name committer, uint64_t num, capi_name work_ty
    });
 }
 
-WORK_TYPE_IMPS(out)
-WORK_TYPE_IMPS(chworker)
-
 extern "C" {
 void apply( uint64_t receiver, uint64_t code, uint64_t action ) {
    if( (name(code) == "eosio"_n) && (name(action) == "transfer"_n) ) {

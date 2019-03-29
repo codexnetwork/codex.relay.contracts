@@ -39,5 +39,5 @@ public:
           == std::tie( b.chain, b.old, b.worker, b.power, b.permission );
    }
 
-   EOSLIB_SERIALIZE( chworker_action_data, (chain)(old)(worker)(power)(permission) )
+   EOSLIB_SERIALIZE( chworker_action_data, (chain)(old)(worker)(power)(permission)(confirmed) )
 };
