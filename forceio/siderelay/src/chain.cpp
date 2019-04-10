@@ -1,6 +1,6 @@
 #include <chain.hpp>
 
-void eosforce::send_transfer_core_token( const eosio::name& from,
+void chainspec::send_transfer_core_token( const eosio::name& from,
                                          const eosio::name& to,
                                          const eosio::asset& quantity,
                                          const std::string& memo ) {
@@ -8,7 +8,7 @@ void eosforce::send_transfer_core_token( const eosio::name& from,
       std::vector<eosio::permission_level>{{from, "active"_n}},
       "force.token"_n,
       "transfer"_n,
-      eosforce::transfer_args{
+      chainspec::transfer_args{
          from, to, quantity, memo
       }
    }.send();
