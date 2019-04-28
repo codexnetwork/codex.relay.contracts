@@ -11,7 +11,8 @@ struct transfer_args {
    std::string memo;
 };
 
-void send_transfer_core_token( const eosio::name& from,
+void send_transfer_core_token( const eosio::name& contract,
+                               const eosio::name& from,
                                const eosio::name& to,
                                const eosio::asset& quantity,
                                const std::string& memo );

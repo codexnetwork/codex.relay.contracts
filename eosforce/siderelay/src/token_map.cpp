@@ -39,5 +39,5 @@ ACTION siderelay::out( capi_name committer, uint64_t num, capi_name to, name cha
    }
 
    print("do_out ", name{to}, ",", chain, ",", quantity, ",", memo, "\n");
-   chainspec::send_transfer_core_token(_self, name{to}, quantity, memo );
+   chainspec::send_transfer_core_token(contract, _self, name{to}, quantity, memo );
 }
