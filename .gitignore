@@ -31,22 +31,21 @@
 *.out
 *.app
 
-eosforce/side\.relay/build/
-
-eos/side\.relay/build/
-
-forceio/side\.relay/build/
+eosforce/siderelay/build/
+eos/siderelay/build/
+forceio/siderelay/build/
 
 \.idea/
+\.vscode/
 
-eosforce/siderelay/build/
-
+eosforce/siderelay/\.vscode/
 eosforce/siderelay/cmake-build-debug/
-
 eosforce/siderelay/src/cmake-build-debug/
 
-eosforce/siderelay/.vscode/
-
 forceio/siderelay/\.vscode/
+forceio/siderelay/cmake-build-debug/
+forceio/siderelay/src/cmake-build-debug/
 
-forceio/siderelay/build/
+eos/siderelay/\.vscode/
+eos/siderelay/cmake-build-debug/
+eos/siderelay/src/cmake-build-debug/
