@@ -21,7 +21,13 @@ public:
    ACTION in( uint64_t num,  capi_name to, const asset& quantity, const std::string& memo );
 
    // from relay chain to side
-   ACTION out( capi_name committer, uint64_t num, capi_name to, name chain, name contract, const asset& quantity, const std::string& memo );
+   ACTION out( capi_name committer, 
+               uint64_t num, 
+               capi_name to, 
+               capi_name chain, 
+               capi_name contract, 
+               const asset& quantity, 
+               const std::string& memo );
 
    // change transfers
    ACTION chworker( capi_name committer, uint64_t num, capi_name work_typ, capi_name old, capi_name worker, uint64_t power, const permission_level& permission );

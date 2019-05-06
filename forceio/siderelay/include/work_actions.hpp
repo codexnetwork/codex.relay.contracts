@@ -9,8 +9,8 @@ using namespace eosio;
 struct out_action_data {
 public:
    capi_name         to;
-   name              chain;
-   name              contract;
+   capi_name         chain;
+   capi_name         contract;
    asset             quantity;
    std::string       memo;
    std::vector<name> confirmed;
