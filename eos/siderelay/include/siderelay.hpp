@@ -18,16 +18,33 @@ public:
    // TODO Support diff token contracts
 
    // from side chain to relay
-   ACTION in( uint64_t num,  capi_name to, const asset& quantity, const std::string& memo );
+   ACTION in( uint64_t num, capi_name to, const asset& quantity, const std::string& memo );
 
    // from relay chain to side
-   ACTION out( capi_name committer, uint64_t num, capi_name to, name chain, name contract, const asset& quantity, const std::string& memo );
+   ACTION out( capi_name committer, 
+               uint64_t num, 
+               capi_name to, 
+               capi_name chain, 
+               capi_name contract, 
+               capi_name action,
+               const asset& quantity, 
+               const std::string& memo );
 
    // change transfers
-   ACTION chworker( capi_name committer, uint64_t num, capi_name work_typ, capi_name old, capi_name worker, uint64_t power, const permission_level& permission );
+   ACTION chworker( capi_name committer, 
+                    uint64_t num, 
+                    capi_name work_typ, 
+                    capi_name old, 
+                    capi_name worker, 
+                    uint64_t power, 
+                    const permission_level& permission );
 
    // change worker in bios stage
-   ACTION initworker( capi_name worker_typ, capi_name worker, uint64_t power, const permission_level& permission );
+   ACTION initworker( capi_name worker_typ, 
+                      capi_name worker, 
+                      uint64_t power, 
+                      const permission_level& permission );
+
    ACTION cleanworker( capi_name work_typ );
 
    TABLE workersgroup {
@@ -51,6 +68,7 @@ public:
       public:
          uint64_t primary_key()const { return group_name.value; }
    };
+
    typedef eosio::multi_index< "workersgroup"_n, workersgroup > workersgroup_table;
    workersgroup_table workergroups;
 

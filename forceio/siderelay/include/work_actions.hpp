@@ -11,16 +11,17 @@ public:
    capi_name         to;
    capi_name         chain;
    capi_name         contract;
+   capi_name         action;
    asset             quantity;
    std::string       memo;
    std::vector<name> confirmed;
 
    friend constexpr bool operator == ( const out_action_data& a, const out_action_data& b ) {
-      return std::tie( a.to, a.chain, a.contract, a.quantity, a.memo )
-          == std::tie( b.to, b.chain, b.contract, b.quantity, b.memo );
+      return std::tie( a.to, a.chain, a.contract, a.action, a.quantity, a.memo )
+          == std::tie( b.to, b.chain, b.contract, b.action, b.quantity, b.memo );
    }
 
-   EOSLIB_SERIALIZE( out_action_data, (to)(chain)(contract)(quantity)(memo)(confirmed) )
+   EOSLIB_SERIALIZE( out_action_data, (to)(chain)(contract)(action)(quantity)(memo)(confirmed) )
 };
 
 // chworkeraction_data data for chworker action to commit

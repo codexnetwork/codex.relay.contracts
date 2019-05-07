@@ -32,12 +32,19 @@ ACTION siderelay::in( uint64_t num,  capi_name to, const asset& quantity, const 
 }
 
 // from relay chain to side
-ACTION siderelay::out( capi_name committer, uint64_t num, capi_name to, name chain, name contract, const asset& quantity, const std::string& memo ) {
+ACTION siderelay::out( capi_name committer, 
+                       uint64_t num, 
+                       capi_name to, 
+                       capi_name chain, 
+                       capi_name contract, 
+                       capi_name action, 
+                       const asset& quantity, 
+                       const std::string& memo ) {
    if( !WORK_CHECK( out, committer, 
-            to, chain, contract, quantity, memo ) ){
+            to, chain, contract, action, quantity, memo ) ){
       return;
    }
 
-   print("do_out ", name{to}, ",", chain, ",", quantity, ",", memo, "\n");
-   chainspec::send_transfer_core_token(contract, _self, name{to}, quantity, memo );
+   print("do_out ", to, ",", chain, ",", quantity, ",", memo, "\n");
+   chainspec::send_token(name{contract}, name{action}, _self, name{to}, quantity, memo );
 }

@@ -8,7 +8,7 @@ ExternalProject_Add(
    siderelay_project
    SOURCE_DIR ${CMAKE_SOURCE_DIR}/src
    BINARY_DIR ${CMAKE_BINARY_DIR}/siderelay
-   CMAKE_ARGS -DCMAKE_TOOLCHAIN_FILE=${EOSIO_CDT_ROOT}/lib/cmake/eosio.cdt/EosioWasmToolchain.cmake
+   CMAKE_ARGS -DCMAKE_TOOLCHAIN_FILE=/usr/local/eosio.cdt/lib/cmake/eosio.cdt/EosioWasmToolchain.cmake
    UPDATE_COMMAND ""
    PATCH_COMMAND ""
    TEST_COMMAND ""
