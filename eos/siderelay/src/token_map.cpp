@@ -30,6 +30,7 @@ void siderelay::ontransfer( name from, name to, const asset& quantity, const std
 ACTION siderelay::in( uint64_t num,  name to, const asset& quantity, const std::string& memo ) {
    // print("in ", from, " ", to, " ", quantity, "\n");
    // TODO By FanYang check num if ok by relay chain
+   require_auth( _self );
 }
 
 // from relay chain to side
