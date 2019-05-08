@@ -26,7 +26,7 @@ public:
                name to, 
                name chain, 
                name contract, 
-               name action,
+               name action, 
                const asset& quantity, 
                const std::string& memo );
 
