@@ -34,8 +34,7 @@ void siderelay::workersgroup::clear_workers() {
 
 void siderelay::workersgroup::del_worker( name worker ) {
    const auto idx = get_idx_by_name(worker);
-   check((idx >= 0) && (idx < requested_names.size()),
-                "no found worker to delete");
+   check((idx >= 0) && (idx < requested_names.size()), "no found worker to delete");
    const auto last_idx = static_cast<int>(requested_names.size()) - 1;
 
    if( last_idx <= 0 ) {
@@ -66,8 +65,8 @@ bool siderelay::workersgroup::is_confirm_ok( const std::vector<name>& confirmed 
 
 name siderelay::workersgroup::check_permission( name worker ) const {
    const auto idx = get_idx_by_name(worker);
-   check((idx >= 0) && (idx < requested_names.size()),
-                "no found worker to check");
+   check((idx >= 0) && (idx < requested_names.size()), "no found worker to check");
+   
    require_auth(requested_approvals[idx]);
 
    return requested_approvals[idx].actor;

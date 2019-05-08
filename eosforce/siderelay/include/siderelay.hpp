@@ -68,6 +68,7 @@ public:
       public:
          uint64_t primary_key()const { return group_name.value; }
    };
+
    typedef eosio::multi_index< "workersgroup"_n, workersgroup > workersgroup_table;
    workersgroup_table workergroups;
 
