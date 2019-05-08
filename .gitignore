@@ -31,6 +31,8 @@
 *.out
 *.app
 
+build/
+
 eosforce/siderelay/build/
 eos/siderelay/build/
 forceio/siderelay/build/
