@@ -1,5 +1,5 @@
-#include <eosiolib/eosio.hpp>
-#include <eosiolib/asset.hpp>
+#include <eosio/eosio.hpp>
+#include <eosio/asset.hpp>
 
 #pragma once
 
@@ -8,10 +8,10 @@ using namespace eosio;
 // outaction_data data for out action to commit
 struct out_action_data {
 public:
-   capi_name         to;
-   capi_name         chain;
-   capi_name         contract;
-   capi_name         action;
+   name              to;
+   name              chain;
+   name              contract;
+   name              action;
    asset             quantity;
    std::string       memo;
    std::vector<name> confirmed;

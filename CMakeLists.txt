@@ -10,6 +10,9 @@ else()
 endif()
 
 find_package(eosio.cdt)
+find_package(forceio.cdt)
+find_package(eosforce.cdt)
+
 ExternalProject_Add(
    eos_siderelay_project
    SOURCE_DIR ${CMAKE_SOURCE_DIR}/eos/siderelay/src
@@ -22,7 +25,6 @@ ExternalProject_Add(
    BUILD_ALWAYS 1
 )
 
-find_package(forceio.cdt)
 ExternalProject_Add(
    forceio_siderelay_project
    SOURCE_DIR ${CMAKE_SOURCE_DIR}/forceio/siderelay/src
@@ -35,7 +37,6 @@ ExternalProject_Add(
    BUILD_ALWAYS 1
 )
 
-find_package(eosforce.cdt)
 ExternalProject_Add(
    eosforce_siderelay_project
    SOURCE_DIR ${CMAKE_SOURCE_DIR}/eosforce/siderelay/src

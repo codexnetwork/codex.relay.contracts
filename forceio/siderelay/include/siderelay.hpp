@@ -1,5 +1,5 @@
-#include <eosiolib/eosio.hpp>
-#include <eosiolib/asset.hpp>
+#include <eosio/eosio.hpp>
+#include <eosio/asset.hpp>
 
 #include <work.hpp>
 #include <work_actions.hpp>
@@ -18,34 +18,34 @@ public:
    // TODO Support diff token contracts
 
    // from side chain to relay
-   ACTION in( uint64_t num, capi_name to, const asset& quantity, const std::string& memo );
+   ACTION in( uint64_t num, name to, const asset& quantity, const std::string& memo );
 
    // from relay chain to side
-   ACTION out( capi_name committer, 
+   ACTION out( name committer, 
                uint64_t num, 
-               capi_name to, 
-               capi_name chain, 
-               capi_name contract, 
-               capi_name action, 
+               name to, 
+               name chain, 
+               name contract, 
+               name action, 
                const asset& quantity, 
                const std::string& memo );
 
    // change transfers
-   ACTION chworker( capi_name committer, 
+   ACTION chworker( name committer, 
                     uint64_t num, 
-                    capi_name work_typ, 
-                    capi_name old, 
-                    capi_name worker, 
+                    name work_typ, 
+                    name old, 
+                    name worker, 
                     uint64_t power, 
                     const permission_level& permission );
 
    // change worker in bios stage
-   ACTION initworker( capi_name worker_typ, 
-                      capi_name worker, 
+   ACTION initworker( name worker_typ, 
+                      name worker, 
                       uint64_t power, 
                       const permission_level& permission );
 
-   ACTION cleanworker( capi_name work_typ );
+   ACTION cleanworker( name work_typ );
 
    TABLE workersgroup {
       public:
@@ -56,13 +56,13 @@ public:
          uint64_t power_sum = 0;
 
       private:
-         int get_idx_by_name( capi_name worker ) const;
+         int get_idx_by_name( name worker ) const;
 
       public:
-         name check_permission( capi_name worker ) const;
-         void modify_worker( capi_name worker, uint64_t power, const permission_level& permission );
+         name check_permission( name worker ) const;
+         void modify_worker( name worker, uint64_t power, const permission_level& permission );
          void clear_workers();
-         void del_worker( capi_name worker );
+         void del_worker( name worker );
          bool is_confirm_ok( const std::vector<name>& confirmed ) const;
 
       public:
@@ -83,15 +83,15 @@ public:
 
 
 public:
-   void ontransfer( capi_name from, capi_name to, const asset& quantity, const std::string& memo );
+   void ontransfer( name from, name to, const asset& quantity, const std::string& memo );
    
 private:
    template< typename Action_Table_T, typename Action_T >
-   bool commit_work_then_check( capi_name committer, uint64_t num, const name& work_typ, const Action_T& act_commit );
+   bool commit_work_then_check( name committer, uint64_t num, const name& work_typ, const Action_T& act_commit );
 
    template<typename T, typename K>
    static bool commit_action_imp( K& actions,
-                           capi_name committer,
+                           name committer,
                            const workersgroup& workers,
                            const T& commit_act );
 
@@ -107,7 +107,7 @@ public:
 // commit_action_imp imp to commit actions
 template<typename T, typename K>
 bool siderelay::commit_action_imp( K& actions,
-                        capi_name committer,
+                        name committer,
                         const siderelay::workersgroup& workers,
                         const T& commit_act ) {
    const auto committer_name = eosio::name{ committer };
@@ -145,14 +145,14 @@ bool siderelay::commit_action_imp( K& actions,
 }
 
 template< typename Action_Table_T, typename Action_T >
-bool siderelay::commit_work_then_check( capi_name committer, uint64_t num, const name& work_typ, const Action_T& act_commit ) {
+bool siderelay::commit_work_then_check( name committer, uint64_t num, const name& work_typ, const Action_T& act_commit ) {
    const auto& workergroup = workergroups.get(work_typ.value, "work_typ channel no find");
    const auto account = workergroup.check_permission( committer );
 
    workstate_table worker_states( _self, _self.value );
    auto states_itr = worker_states.find(work_typ.value);
-   eosio_assert(states_itr != worker_states.end(), "work_typ work states no find");
-   eosio_assert(num > states_itr->confirmed_num, "action by num has committed");
+   check(states_itr != worker_states.end(), "work_typ work states no find");
+   check(num > states_itr->confirmed_num, "action by num has committed");
 
    Action_Table_T acts_table(_self, work_typ.value);
    auto itr = acts_table.find(num);

@@ -3,7 +3,7 @@
 // worker manager
 
 // change transfers
-ACTION siderelay::chworker( capi_name committer, uint64_t num, capi_name work_typ, capi_name old, capi_name worker, uint64_t power, const permission_level& permission ) {
+ACTION siderelay::chworker( name committer, uint64_t num, name work_typ, name old, name worker, uint64_t power, const permission_level& permission ) {
    //print("chworker ", committer, " ", worker, " from ", old, "\n");
 
    if( !WORK_CHECK( chworker, committer, 
@@ -11,8 +11,8 @@ ACTION siderelay::chworker( capi_name committer, uint64_t num, capi_name work_ty
       return;
    }
 
-   auto itr = workergroups.find(work_typ);
-   eosio_assert(itr != workergroups.end(), "no found chain channel");
+   auto itr = workergroups.find(work_typ.value);
+   check(itr != workergroups.end(), "no found chain channel");
    workergroups.modify(itr, _self, [&]( auto& row ) {
       if( old != worker ) {
          row.del_worker(old);

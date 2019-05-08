@@ -5,7 +5,7 @@
 // if memo is "" so support user transfer token to self account in relay chain
 // if memo is "xxx", memo is the account to transfer in relay chain
 // if memo is "xxx|tt", xxx is the account to transfer in relay chain tt is memo
-void siderelay::ontransfer( capi_name from, capi_name to, const asset& quantity, const std::string& memo ) {
+void siderelay::ontransfer( name from, name to, const asset& quantity, const std::string& memo ) {
    if( name(from) == _self || name(to) != _self ) {
       return;
    }
@@ -19,25 +19,25 @@ void siderelay::ontransfer( capi_name from, capi_name to, const asset& quantity,
 
    auto to_account = to;
    if( !memo.empty() ) {
-      to_account = name{memo}.value;
+      to_account = name{memo};
    }
 
    in.send(1, to_account, quantity, "to relay chain");
 }
 
 // from side chain to relay
-ACTION siderelay::in( uint64_t num,  capi_name to, const asset& quantity, const std::string& memo ) {
+ACTION siderelay::in( uint64_t num,  name to, const asset& quantity, const std::string& memo ) {
    // print("in ", from, " ", to, " ", quantity, "\n");
    // TODO By FanYang check num if ok by relay chain
 }
 
 // from relay chain to side
-ACTION siderelay::out( capi_name committer, 
+ACTION siderelay::out( name committer, 
                        uint64_t num, 
-                       capi_name to, 
-                       capi_name chain, 
-                       capi_name contract, 
-                       capi_name action, 
+                       name to, 
+                       name chain, 
+                       name contract, 
+                       name action, 
                        const asset& quantity, 
                        const std::string& memo ) {
    if( !WORK_CHECK( out, committer, 

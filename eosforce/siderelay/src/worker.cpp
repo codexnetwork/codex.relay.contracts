@@ -1,16 +1,16 @@
 #include <siderelay.hpp>
 #include <chain.hpp>
 
-int siderelay::workersgroup::get_idx_by_name( capi_name worker ) const {
+int siderelay::workersgroup::get_idx_by_name( name worker ) const {
    for( int i = 0; i < requested_names.size(); i++ ) {
-      if( requested_names[i].value == worker ) {
+      if( requested_names[i] == worker ) {
          return i;
       }
    }
    return -1;
 }
 
-void siderelay::workersgroup::modify_worker( capi_name worker, uint64_t power, const permission_level& permission ) {
+void siderelay::workersgroup::modify_worker( name worker, uint64_t power, const permission_level& permission ) {
    const auto idx = get_idx_by_name(worker);
    if( idx < 0 ) {
       requested_names.emplace_back(worker);
@@ -32,10 +32,9 @@ void siderelay::workersgroup::clear_workers() {
    power_sum = 0;
 }
 
-void siderelay::workersgroup::del_worker( capi_name worker ) {
+void siderelay::workersgroup::del_worker( name worker ) {
    const auto idx = get_idx_by_name(worker);
-   eosio_assert((idx >= 0) && (idx < requested_names.size()),
-                "no found worker to delete");
+   check((idx >= 0) && (idx < requested_names.size()), "no found worker to delete");
    const auto last_idx = static_cast<int>(requested_names.size()) - 1;
 
    if( last_idx <= 0 ) {
@@ -56,7 +55,7 @@ void siderelay::workersgroup::del_worker( capi_name worker ) {
 bool siderelay::workersgroup::is_confirm_ok( const std::vector<name>& confirmed ) const {
    uint64_t confirmed_power = 0;
    for( const auto& c : confirmed ) {
-      const auto idx = get_idx_by_name(c.value);
+      const auto idx = get_idx_by_name(c);
       if( idx >= 0 && idx <= requested_powers.size() ) {
          confirmed_power += requested_powers[idx];
       }
@@ -64,10 +63,10 @@ bool siderelay::workersgroup::is_confirm_ok( const std::vector<name>& confirmed 
    return (confirmed_power * 3) >= (power_sum * 2);
 }
 
-name siderelay::workersgroup::check_permission( capi_name worker ) const {
+name siderelay::workersgroup::check_permission( name worker ) const {
    const auto idx = get_idx_by_name(worker);
-   eosio_assert((idx >= 0) && (idx < requested_names.size()),
-                "no found worker to check");
+   check((idx >= 0) && (idx < requested_names.size()), "no found worker to check");
+   
    require_auth(requested_approvals[idx]);
 
    return requested_approvals[idx].actor;

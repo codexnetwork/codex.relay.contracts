@@ -1,9 +1,9 @@
 #include <siderelay.hpp>
 
-ACTION siderelay::initworker( capi_name worker_typ, capi_name worker, uint64_t power, const permission_level& permission ) {
+ACTION siderelay::initworker( name worker_typ, name worker, uint64_t power, const permission_level& permission ) {
    require_auth(_self);
 
-   auto itr = workergroups.find(worker_typ);
+   auto itr = workergroups.find(worker_typ.value);
    if( itr == workergroups.end() ) {
       workergroups.emplace(_self, [&]( auto& u ) {
          u.group_name = name{worker_typ};
@@ -27,10 +27,10 @@ ACTION siderelay::initworker( capi_name worker_typ, capi_name worker, uint64_t p
    }
 }
 
-ACTION siderelay::cleanworker( capi_name work_typ ) {
+ACTION siderelay::cleanworker( name work_typ ) {
    require_auth(_self);
 
-   auto itr = workergroups.find(work_typ);
+   auto itr = workergroups.find(work_typ.value);
    if( itr != workergroups.end() ) {
       workergroups.modify(itr, _self, [&]( auto& row ) {
          row.clear_workers();
