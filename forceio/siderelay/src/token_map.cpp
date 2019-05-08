@@ -47,5 +47,5 @@ ACTION siderelay::out( name committer,
    }
 
    print("do_out ", to, ",", chain, ",", quantity, ",", memo, "\n");
-   chainspec::send_token(name{contract}, name{action}, _self, name{to}, quantity, memo );
+   chainspec::send_token(contract, action, _self, to, quantity, memo );
 }

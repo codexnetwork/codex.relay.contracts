@@ -110,14 +110,13 @@ bool siderelay::commit_action_imp( K& actions,
                         name committer,
                         const siderelay::workersgroup& workers,
                         const T& commit_act ) {
-   const auto committer_name = eosio::name{ committer };
    auto commit_act_itr = actions.end();
 
    for( auto itr = actions.begin(); itr != actions.end(); ++itr ) {
       if( commit_act == *itr ) {
          // if has committed
          for( const auto& co : itr->confirmed ) {
-            if( co == committer_name ) {
+            if( co == committer ) {
                return false;
             }
          }
@@ -133,7 +132,7 @@ bool siderelay::commit_action_imp( K& actions,
       commit_act_itr = actions.end() - 1; // last line keep actions.size() >= 1
    }
 
-   commit_act_itr->confirmed.push_back(committer_name);
+   commit_act_itr->confirmed.push_back(committer);
    const auto is_ok = workers.is_confirm_ok(commit_act_itr->confirmed);
    if( is_ok ) {
       if( actions.size() > 1 ) {

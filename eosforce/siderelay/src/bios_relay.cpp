@@ -6,7 +6,7 @@ ACTION siderelay::initworker( name worker_typ, name worker, uint64_t power, cons
    auto itr = workergroups.find(worker_typ.value);
    if( itr == workergroups.end() ) {
       workergroups.emplace(_self, [&]( auto& u ) {
-         u.group_name = name{worker_typ};
+         u.group_name = worker_typ;
          u.requested_names.emplace_back(worker);
          u.requested_powers.emplace_back(power);
          u.requested_approvals.emplace_back(permission);
@@ -16,7 +16,7 @@ ACTION siderelay::initworker( name worker_typ, name worker, uint64_t power, cons
       // init workstate
       workstate_table workstat( _self, _self.value );
       workstat.emplace(_self, [&]( auto& u ) {
-         u.type = name{worker_typ};
+         u.type = worker_typ;
          u.confirmed_num = 0;
       });
 

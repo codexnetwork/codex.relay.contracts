@@ -7,7 +7,7 @@ ACTION siderelay::chworker( name committer, uint64_t num, name work_typ, name ol
    //print("chworker ", committer, " ", worker, " from ", old, "\n");
 
    if( !WORK_CHECK( chworker, committer, 
-            name{work_typ}, name{old}, name{worker}, power, permission ) ){
+            work_typ, old, worker, power, permission ) ){
       return;
    }
 
