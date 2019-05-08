@@ -20,19 +20,3 @@ ACTION siderelay::chworker( name committer, uint64_t num, name work_typ, name ol
       row.modify_worker(worker, power, permission);
    });
 }
-
-extern "C" {
-void apply( uint64_t receiver, uint64_t code, uint64_t action ) {
-   // TODO FORCEIO allow change main symbol name, so it is need support config this
-   if( (name(code) == "eosio"_n) && (name(action) == "transfer"_n) ) {
-      execute_action(name(receiver), name(action), &siderelay::ontransfer);
-      return;
-   }
-
-   if( code == receiver ) {
-      switch( action ) {
-         EOSIO_DISPATCH_HELPER(siderelay, (out)(chworker)(initworker)(cleanworker))
-      }
-   }
-}
-}
