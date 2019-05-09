@@ -1,4 +1,7 @@
 include(ExternalProject)
+
+cmake_minimum_required(VERSION 3.13)
+
 # if no cdt root is given use default path
 if(FORCEIO_CDT_ROOT STREQUAL "" OR NOT FORCEIO_CDT_ROOT)
    find_package(forceio.cdt)
