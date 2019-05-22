@@ -5,7 +5,7 @@
 // if memo is "" so support user transfer token to self account in relay chain
 // if memo is "xxx", memo is the account to transfer in relay chain
 // if memo is "xxx|tt", xxx is the account to transfer in relay chain tt is memo
-[[eosio::on_notify("force.token::transfer")]] 
+[[eosio::on_notify("*::transfer")]] 
 void siderelay::ontransfer( name from, name to, const asset& quantity, const std::string& memo ) {
    if( from == _self || to != _self ) {
       return;
