@@ -1,2 +1,2 @@
-# FORCEIO-relay-contract
-relay contract for forceio side chain
+# CODEX Relay Contract
+relay contract for chain in codex system
