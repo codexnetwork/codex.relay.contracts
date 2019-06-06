@@ -17,3 +17,7 @@
 <h1 class="contract"> cleanworker </h1>
 
 `cleanworker` action, reset worker when do initworker action error before chain channel open.
+
+<h1 class="contract"> resetworker </h1>
+
+`resetworker` action, reset worker and worker stat when do initworker action error before chain channel open.
