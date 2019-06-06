@@ -47,6 +47,8 @@ public:
 
    ACTION cleanworker( name work_typ );
 
+   ACTION resetworker( name work_typ );
+
    TABLE workersgroup {
       public:
          name group_name;
