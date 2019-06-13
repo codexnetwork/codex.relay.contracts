@@ -1,7 +1,7 @@
 project(siderelay)
 
-set(EOSIO_WASM_OLD_BEHAVIOR "Off")
-find_package(forceio.cdt)
+set(CODEX_WASM_OLD_BEHAVIOR "Off")
+find_package(codex.cdt)
 
 add_contract( siderelay siderelay worker.cpp bios_relay.cpp token_map.cpp chain.cpp siderelay.cpp )
 
