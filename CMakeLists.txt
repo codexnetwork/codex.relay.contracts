@@ -27,8 +27,8 @@ ExternalProject_Add(
 
 ExternalProject_Add(
    forceio_siderelay_project
-   SOURCE_DIR ${CMAKE_SOURCE_DIR}/forceio/siderelay/src
-   BINARY_DIR ${CMAKE_BINARY_DIR}/forceio/siderelay
+   SOURCE_DIR ${CMAKE_SOURCE_DIR}/codexio/siderelay/src
+   BINARY_DIR ${CMAKE_BINARY_DIR}/codexio/siderelay
    CMAKE_ARGS -DCMAKE_TOOLCHAIN_FILE=${FORCEIO_CDT_ROOT}/lib/cmake/forceio.cdt/EosioWasmToolchain.cmake
    UPDATE_COMMAND ""
    PATCH_COMMAND ""
