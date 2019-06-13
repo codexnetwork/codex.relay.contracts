@@ -10,7 +10,7 @@ else()
 endif()
 
 find_package(eosio.cdt)
-find_package(forceio.cdt)
+find_package(codex.cdt)
 find_package(eosforce.cdt)
 
 ExternalProject_Add(
@@ -26,10 +26,10 @@ ExternalProject_Add(
 )
 
 ExternalProject_Add(
-   forceio_siderelay_project
-   SOURCE_DIR ${CMAKE_SOURCE_DIR}/forceio/siderelay/src
-   BINARY_DIR ${CMAKE_BINARY_DIR}/forceio/siderelay
-   CMAKE_ARGS -DCMAKE_TOOLCHAIN_FILE=${FORCEIO_CDT_ROOT}/lib/cmake/forceio.cdt/EosioWasmToolchain.cmake
+   codexio_siderelay_project
+   SOURCE_DIR ${CMAKE_SOURCE_DIR}/codexio/siderelay/src
+   BINARY_DIR ${CMAKE_BINARY_DIR}/codexio/siderelay
+   CMAKE_ARGS -DCMAKE_TOOLCHAIN_FILE=${CODEX_CDT_ROOT}/lib/cmake/codex.cdt/EosioWasmToolchain.cmake
    UPDATE_COMMAND ""
    PATCH_COMMAND ""
    TEST_COMMAND ""
